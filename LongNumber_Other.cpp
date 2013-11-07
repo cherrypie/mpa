@@ -60,7 +60,7 @@ LongNumber& LongNumber::operator>>=(unsigned int a)
 	return *this;
 }
 
-pair<LongNumber, LongNumber> LongNumber::extended_gcd(LongNumber a, LongNumber b)
+std::pair<LongNumber, LongNumber> LongNumber::extended_gcd(LongNumber a, LongNumber b)
 {
 	LongNumber x(0), lastx(1), y(1), lasty(0), q, temp;
 	pair<LongNumber, LongNumber> qr;
@@ -80,7 +80,7 @@ pair<LongNumber, LongNumber> LongNumber::extended_gcd(LongNumber a, LongNumber b
 		y = lasty - q * y;
 		lasty = temp;
 	}
-	return pair<LongNumber, LongNumber>(lastx, lasty);
+	return std::pair<LongNumber, LongNumber>(lastx, lasty);
 }
 
 LongNumber LongNumber::getModuloPowerTwo(unsigned int k)
