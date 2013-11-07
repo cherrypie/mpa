@@ -1,7 +1,5 @@
 #include "LongNumber.h"
 
-unsigned int tempc;
-
 unsigned long long ext_gcd(unsigned long long a, unsigned long long b, long long& x, long long& y)
 {
 	if (b == 0) {
@@ -59,6 +57,7 @@ LongNumber LongNumber::Barrett(LongNumber x, LongNumber& n, LongNumber& mu)
 
 	q = x - q;
 	while(q == n || n < q){/*cout << q << endl;*/q = q - n;}
+	//Some problems with almost ininite loop
 
 	return q;
 }
@@ -78,10 +77,12 @@ LongNumber LongNumber::MonRed(LongNumber x, LongNumber& n)
 
 	return x;
 }
-//LongNumber LongNumber::MonPro(LongNumber, LongNumber&, LongNumber&, unsigned int c = 0);
 LongNumber LongNumber::MonPro(LongNumber& x, LongNumber& y, LongNumber& n, unsigned int c)
 {
 	return LongNumber::MonRed(x * y, n);
+	//yeah, all is right :/
+	
+	
 	if(x.arr.size() < n.arr.size()) x.arr.resize(n.arr.size(), 0);
 
 	if(c == 0)
@@ -181,7 +182,6 @@ LongNumber LongNumber::MonOddPow(LongNumber& x, LongNumber& d, LongNumber& n)
 
 LongNumber LongNumber::Pow(LongNumber& x, LongNumber& d, LongNumber& n)
 {
-	cout << "TTTTT" << endl;
 	LongNumber y(1);
 	LongNumber mu = (LongNumber(1) <<= (2 * n.arr.size() * BITSINWORD)) / n;
 
@@ -190,9 +190,8 @@ LongNumber LongNumber::Pow(LongNumber& x, LongNumber& d, LongNumber& n)
 
 	for(int i = high_bit; i >= 0; --i)
 	{
-		cout << "1" << endl;
+
 		y = Barrett(y.Square(), n, mu);
-		cout << "2" << endl;
 		if( (( d.arr[d.arr.size() - 1] >> i ) & 1) == 1)
 			y = Barrett(y * x, n, mu);
 	}
