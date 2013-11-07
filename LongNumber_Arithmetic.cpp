@@ -192,7 +192,7 @@ LongNumber operator%(LongNumber& a, LongNumber& b)
 	return LongNumber::div(a, b).second;
 }
 
-pair<LongNumber, unsigned int> LongNumber::divByte(unsigned int& b)
+std::pair<LongNumber, unsigned int> LongNumber::divByte(unsigned int& b)
 {
 	unsigned int r = 0;
 	LongNumber q;	
@@ -202,11 +202,11 @@ pair<LongNumber, unsigned int> LongNumber::divByte(unsigned int& b)
 		q.arr[i] = ( (((unsigned long long) r) << BITSINWORD) + this->arr[i]) / b;
 		r = ((((unsigned long long) r) << BITSINWORD) + this->arr[i]) % b;
 	}
-	return make_pair(q, r);
+	return std::make_pair(q, r);
 }
 
 
-pair<LongNumber, LongNumber> LongNumber::div(LongNumber a, LongNumber& b)
+std::pair<LongNumber, LongNumber> LongNumber::div(LongNumber a, LongNumber& b)
 {
 	if(b == 0)
 		cout << "Achivement gained! (Divide by zero)" << endl;
@@ -233,8 +233,7 @@ pair<LongNumber, LongNumber> LongNumber::div(LongNumber a, LongNumber& b)
 	{
 		qq = ((unsigned long long)a.arr[j + n] * LongNumber::Base + a.arr[j + n - 1]) / b.arr[b.arr.size() - 1];
 		rem = ((unsigned long long)a.arr[j + n] * LongNumber::Base + a.arr[j + n - 1]) - b.arr[b.arr.size() - 1] * qq;
-		if(qq > LongNumber::Base || rem > LongNumber::Base) abort();
-		
+
 		if(qq == LongNumber::Base || qq * b.arr[b.arr.size() - 2] > rem * LongNumber::Base + a.arr[j + n - 2])
 		{
 			--qq;
@@ -285,5 +284,5 @@ pair<LongNumber, LongNumber> LongNumber::div(LongNumber a, LongNumber& b)
 	while(q.arr.size() > 1 && q.arr[q.arr.size() - 1] == 0) q.arr.pop_back();
 	while(a.arr.size() > 1 && a.arr[a.arr.size() - 1] == 0) a.arr.pop_back();
 
-	return make_pair(q, a >>= d);
+	return std::make_pair(q, a >>= d);
 }
