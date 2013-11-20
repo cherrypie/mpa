@@ -1,6 +1,6 @@
-#include "LongNumber.h"
+#include "BigInt.h"
 
-bool operator<(LongNumber& a, LongNumber& b)
+bool operator<(BigInt& a, BigInt& b)
 {
     if(a.arr.size() < b.arr.size())
         return true;
@@ -19,7 +19,7 @@ bool operator<(LongNumber& a, LongNumber& b)
     return false;
 }
 
-bool operator==(LongNumber& a, LongNumber& b)
+bool operator==(BigInt& a, BigInt& b)
 {
     if(a.arr.size() != b.arr.size())
         return false;

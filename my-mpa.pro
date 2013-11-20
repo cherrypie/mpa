@@ -4,13 +4,13 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 SOURCES += main.cpp \
-    LongNumber_Other.cpp \
-    LongNumber_Modular.cpp \
-    LongNumber_Logic.cpp \
-    LongNumber_Base.cpp \
-    LongNumber_Arithmetic.cpp
+    BigInt_IO.cpp \
+    BIgInt_Arithm.cpp \
+    BigInt_Cmp.cpp \
+    BigInt_Mod.cpp \
+    BigInt_Other.cpp
 
 HEADERS += \
-    LongNumber.h
+    BigInt.h
 
 QMAKE_CXXFLAGS += -std=c++11

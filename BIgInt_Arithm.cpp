@@ -1,6 +1,6 @@
-#include "LongNumber.h"
+#include "BigInt.h"
 
-LongNumber& LongNumber::add(LongNumber& a)
+BigInt& BigInt::uAdd(BigInt& a)
 {
     int carry = 0;
     unsigned long long temp = 0;
@@ -22,9 +22,9 @@ LongNumber& LongNumber::add(LongNumber& a)
     return *this;
 }
 
-LongNumber operator+(LongNumber& a, unsigned int b)
+BigInt operator+(BigInt& a, unsigned int b)
 {
-    LongNumber c = a;
+    BigInt c = a;
     unsigned long long temp = c.arr[0] + b;
     c.arr[0] = (unsigned int) temp;
     if(temp >> BITSINWORD)
@@ -41,7 +41,7 @@ LongNumber operator+(LongNumber& a, unsigned int b)
     return c;
 }
 
-LongNumber& LongNumber::sub(LongNumber& a)
+BigInt& BigInt::uSub(BigInt& a)
 {
     int carry = 0;
     size_t i = 0;
@@ -72,27 +72,51 @@ LongNumber& LongNumber::sub(LongNumber& a)
     return *this;
 }
 
-LongNumber operator+(LongNumber& a, LongNumber& b)
+BigInt operator+(BigInt& a, BigInt& b)
 {
     if(a < b)
         return b + a;
 
     if(a.nonNegative ^ b.nonNegative)
-        return LongNumber(a).sub(b);
+        return BigInt(a).uSub(b);
     else
-        return LongNumber(a).add(b);
+        return BigInt(a).uAdd(b);
 }
 
-LongNumber operator-(LongNumber& a, LongNumber& b)
+BigInt operator-(BigInt& a, BigInt& b)
 {
-    b.nonNegative = b.nonNegative ? 0 : 1;
-    return a + b;
+    if(a == b) return BigInt(0);
+
+    BigInt c;
+
+    b.nonNegative = 1 - b.nonNegative;
+
+    if(a.nonNegative ^ b.nonNegative)
+    {
+        if(a < b)
+            c = BigInt(b).uSub(a);
+        else
+            c = BigInt(a).uSub(b);
+    }
+    else
+    {
+        b.nonNegative = 1 - b.nonNegative;
+        if(a < b)
+            c = BigInt(b).uAdd(a);
+        else
+            c = BigInt(a).uAdd(b);
+    }
+
+    b.nonNegative = 1 - b.nonNegative;
+
+    return c;
 }
 
-LongNumber LongNumber::Square()
+BigInt BigInt::Square()
 {
-    LongNumber b;
+    BigInt b;
     b.arr.resize(arr.size() * 2, 0);
+    b.nonNegative = 1;
 
     unsigned long long temp;
     unsigned int carry;
@@ -131,26 +155,30 @@ LongNumber LongNumber::Square()
 }
 
 
-LongNumber operator*(LongNumber a, unsigned int b)
+BigInt operator*(BigInt& a, unsigned int b)
 {
+    BigInt c;
+    c.arr.resize(a.arr.size());
+    c.nonNegative = a.nonNegative;
+
     unsigned long long product = (unsigned long long) a.arr[0] * b;
     unsigned int carry = (product >> BITSINWORD);
-    a.arr[0] = (unsigned int) product;
+    c.arr[0] = (unsigned int) product;
 
-    for(size_t i = 1; ( carry != 0 ) && ( i < a.arr.size() ); ++i)
+    for(size_t i = 1; ( carry != 0 ) && ( i < c.arr.size() ); ++i)
     {
         product = (unsigned long long)a.arr[i] * b + carry;
         carry = (product >> BITSINWORD);
-        a.arr[i] = (unsigned int) product;
+        c.arr[i] = (unsigned int) product;
     }
     if(carry != 0)
-        a.arr.push_back(carry);
-    return a;
+        c.arr.push_back(carry);
+    return c;
 }
 
-LongNumber operator*(LongNumber& a, LongNumber& b)
+BigInt operator*(BigInt& a, BigInt& b)
 {
-    LongNumber c(0);
+    BigInt c(0);
     if(a.nonNegative ^ b.nonNegative) c.nonNegative = 0;
     c.arr.resize(a.arr.size() + b.arr.size(), 0);
 
@@ -177,47 +205,52 @@ LongNumber operator*(LongNumber& a, LongNumber& b)
 }
 
 
-LongNumber operator/(LongNumber& a, LongNumber& b)
+BigInt operator/(BigInt& a, BigInt& b)
 {
-    return LongNumber::div(a, b).first;
+    return BigInt::div(a, b).first;
 }
 
-LongNumber operator/(LongNumber& a, unsigned int b)
+BigInt operator/(BigInt& a, unsigned int b)
 {
-    return a.divByte(b).first;
+    return BigInt::divByte(a,b).first;
 }
 
-LongNumber operator%(LongNumber& a, LongNumber& b)
+BigInt operator%(BigInt& a, BigInt& b)
 {
-    return LongNumber::div(a, b).second;
+    return BigInt::div(a, b).second;
 }
 
-std::pair<LongNumber, unsigned int> LongNumber::divByte(unsigned int& b)
+BigInt operator%(BigInt& a, unsigned int b)
+{
+    return BigInt::divByte(a, b).second;
+}
+
+std::pair<BigInt, unsigned int> BigInt::divByte(BigInt& a, unsigned int& b)
 {
     if(b == 0)
     {
       std::cout << "DIVIDING BY ZERO!\n";
-      return std::make_pair(LongNumber(0), 0);
+      return std::make_pair(BigInt(0), 0);
     }
 
     unsigned int r = 0;
-    LongNumber q;
-    q.arr.resize(this->arr.size());
-    for(int i = this->arr.size() - 1; i >= 0; --i)
+    BigInt q;
+    q.arr.resize(a.arr.size());
+    for(int i = a.arr.size() - 1; i >= 0; --i)
     {
-        q.arr[i] = ( (((unsigned long long) r) << BITSINWORD) + this->arr[i]) / b;
-        r = ((((unsigned long long) r) << BITSINWORD) + this->arr[i]) % b;
+        q.arr[i] = ( (((unsigned long long) r) << BITSINWORD) + a.arr[i]) / b;
+        r = ((((unsigned long long) r) << BITSINWORD) + a.arr[i]) % b;
     }
     return std::make_pair(q, r);
 }
 
 
-std::pair<LongNumber, LongNumber> LongNumber::div(LongNumber a, LongNumber& b)
+std::pair<BigInt, BigInt> BigInt::div(BigInt a, BigInt& b)
 {
     if(b.arr.size() == 1)
-        return a.divByte(b.arr[0]);
+        return divByte(a, (b.arr[0]));
 
-    LongNumber q;
+    BigInt q;
 
     //Normalise
     unsigned int d;
@@ -234,14 +267,14 @@ std::pair<LongNumber, LongNumber> LongNumber::div(LongNumber a, LongNumber& b)
     long long temptemp;
     for(int j = m; j >= 0; --j)
     {
-        qq = ((unsigned long long)a.arr[j + n] * LongNumber::Base + a.arr[j + n - 1]) / b.arr[b.arr.size() - 1];
-        rem = ((unsigned long long)a.arr[j + n] * LongNumber::Base + a.arr[j + n - 1]) - b.arr[b.arr.size() - 1] * qq;
+        qq = ((unsigned long long)a.arr[j + n] * BigInt::Base + a.arr[j + n - 1]) / b.arr[b.arr.size() - 1];
+        rem = ((unsigned long long)a.arr[j + n] * BigInt::Base + a.arr[j + n - 1]) - b.arr[b.arr.size() - 1] * qq;
 
-        if(qq == LongNumber::Base || qq * b.arr[b.arr.size() - 2] > rem * LongNumber::Base + a.arr[j + n - 2])
+        if(qq == BigInt::Base || qq * b.arr[b.arr.size() - 2] > rem * BigInt::Base + a.arr[j + n - 2])
         {
             --qq;
             rem += b.arr[n - 1];
-            if(rem < LongNumber::Base && qq * b.arr[n - 2] > rem * LongNumber::Base + a.arr[j + n - 2])
+            if(rem < BigInt::Base && qq * b.arr[n - 2] > rem * BigInt::Base + a.arr[j + n - 2])
                 --qq;
         }
 
@@ -258,7 +291,7 @@ std::pair<LongNumber, LongNumber> LongNumber::div(LongNumber a, LongNumber& b)
             }
             else
             {
-                a.arr[j + i] = (unsigned int)(temptemp + LongNumber::Base);
+                a.arr[j + i] = (unsigned int)(temptemp + BigInt::Base);
                 carrya = -1;
             }
 

@@ -1,6 +1,9 @@
-#include "LongNumber.h"
+#include "BigInt.h"
 
-LongNumber& LongNumber::operator<<=(unsigned int a)
+using std::cout;
+using std::endl;
+
+BigInt& BigInt::operator<<=(unsigned int a)
 {
     if(a == 0)
     {
@@ -31,7 +34,7 @@ LongNumber& LongNumber::operator<<=(unsigned int a)
     return *this;
 }
 
-LongNumber& LongNumber::operator>>=(unsigned int a)
+BigInt& BigInt::operator>>=(unsigned int a)
 {
     if(a >= this->arr.size() * BITSINWORD)
     {
@@ -60,13 +63,13 @@ LongNumber& LongNumber::operator>>=(unsigned int a)
     return *this;
 }
 
-std::pair<LongNumber, LongNumber> LongNumber::extended_gcd(LongNumber a, LongNumber b)
+std::pair<BigInt, BigInt> BigInt::extended_gcd(BigInt a, BigInt b)
 {
-    LongNumber x(0), lastx(1), y(1), lasty(0), q, temp, temptemp;
-    std::pair<LongNumber, LongNumber> qr;
+    BigInt x(0), lastx(1), y(1), lasty(0), q, temp, temptemp;
+    std::pair<BigInt, BigInt> qr;
     while(! (b.arr[b.arr.size() - 1] == 0) )
     {
-        qr = LongNumber::div(a, b);
+        qr = BigInt::div(a, b);
         q = qr.first;
 
         a = b;
@@ -82,25 +85,33 @@ std::pair<LongNumber, LongNumber> LongNumber::extended_gcd(LongNumber a, LongNum
         y = lasty - temptemp;
         lasty = temp;
     }
-    return std::pair<LongNumber, LongNumber>(lastx, lasty);
+    return std::pair<BigInt, BigInt>(lastx, lasty);
 }
 
-LongNumber LongNumber::getModuloPowerTwo(unsigned int k)
+BigInt BigInt::getModuloPowerTwo(unsigned int k)
 {
     if(k >= BITSINWORD * (arr.size()))
-        return LongNumber(*this);
+        return BigInt(*this);
 
-    LongNumber a;
+    BigInt a;
+    a.arr.clear();
+
     unsigned int i = 0;
 
     while(k >= BITSINWORD)
     {
-        a.arr.push_back(arr[i++]);
+        a.arr.push_back(arr[i]);
+        ++i;
         k -= BITSINWORD;
     }
 
     if(k > 0)
-        a.arr.push_back( (arr[i] << (BITSINWORD - k) ) >> k );
+        a.arr.push_back( (arr[i] << (BITSINWORD - k) ) >> (BITSINWORD - k) );
 
     return a;
+}
+
+unsigned int BigInt::getSize()
+{
+    return arr.size();
 }

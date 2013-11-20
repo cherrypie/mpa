@@ -1,23 +1,22 @@
-#include "LongNumber.h"
+#include "BigInt.h"
 
-LongNumber::LongNumber() {
+BigInt::BigInt() {
     nonNegative = 1;
-    arr.push_back(0);
 }
 
-LongNumber::LongNumber(unsigned int data)
+BigInt::BigInt(unsigned int data)
 {
     nonNegative = 1;
     arr.push_back(data);
 }
 
-LongNumber::LongNumber(const LongNumber& data)
+BigInt::BigInt(const BigInt& data)
 {
     nonNegative = data.nonNegative;
     arr.assign(data.arr.begin(), data.arr.end());
 }
 
-LongNumber::LongNumber(std::string str)
+BigInt::BigInt(std::string str)
 {
     nonNegative = 1;
     std::string buff;
@@ -29,7 +28,7 @@ LongNumber::LongNumber(std::string str)
     while(arr.size() > 1 && arr[arr.size() - 1] == 0) arr.pop_back();
 }
 
-std::ostream& operator<<(std::ostream& out, const LongNumber& data)
+std::ostream& operator<<(std::ostream& out, const BigInt& data)
 {
     if(!data.nonNegative) out << '-';
     out << std::hex << data.arr[data.arr.size() - 1];
